@@ -1,0 +1,97 @@
+
+options:
+    prefix: &8[&6SellSkilt&8] &7
+
+# ==========================================
+# SET SELL SIGN
+# ==========================================
+
+command /setskilt:
+    permission: sellskilt.admin
+    permission message: {@prefix}&cDu har ikke adgang!
+    trigger:
+        set {_block} to targeted block of player
+
+        if {_block} is not a sign:
+            send "{@prefix}&cDu skal kigge på et skilt!"
+            stop
+
+        set {_loc} to location of {_block}
+
+        if {sellskilt::%{_loc}%} is set:
+            send "{@prefix}&eDette skilt er allerede et sell-skilt!"
+            stop
+
+        set {sellskilt::%{_loc}%} to true
+
+        send "{@prefix}&aSell-skilt oprettet!"
+        send "&7Placering: &f%world of {_loc}% &8| &f%x-coordinate of {_loc}%, %y-coordinate of {_loc}%, %z-coordinate of {_loc}%"
+
+# ==========================================
+# REMOVE SELL SIGN
+# ==========================================
+
+command /fjernskilt:
+    permission: sellskilt.admin
+    permission message: {@prefix}&cDu har ikke adgang!
+    trigger:
+        set {_block} to targeted block of player
+
+        if {_block} is not a sign:
+            send "{@prefix}&cDu skal kigge på et skilt!"
+            stop
+
+        set {_loc} to location of {_block}
+
+        if {sellskilt::%{_loc}%} is not set:
+            send "{@prefix}&cDette skilt er ikke et sell-skilt!"
+            stop
+
+        delete {sellskilt::%{_loc}%}
+        send "{@prefix}&aSell-skilt fjernet!"
+
+# ==========================================
+# CLICK SELL SIGN
+# ==========================================
+
+on right click on sign:
+    set {_loc} to location of event-block
+
+    if {sellskilt::%{_loc}%} is set:
+        cancel event
+
+        if player is not online:
+            stop
+
+        execute player command "sellall"
+
+# ==========================================
+# PREVENT SIGN BREAKING
+# ==========================================
+
+on break:
+    set {_loc} to location of event-block
+
+    if {sellskilt::%{_loc}%} is set:
+        if player does not have permission "sellskilt.admin":
+            cancel event
+            send "{@prefix}&cDu kan ikke ødelægge dette sell-skilt!"
+        else:
+            delete {sellskilt::%{_loc}%}
+            send "{@prefix}&eSell-skilt fjernet."
+
+# ==========================================
+# ADMIN HELP
+# ==========================================
+
+command /sellskilthjælp:
+    permission: sellskilt.admin
+    trigger:
+        send "&8&m------------------------------"
+        send "&6&lSELLSKILT &7- Hjælp"
+        send ""
+        send "&e/setskilt &8- &7Opret sell-skilt"
+        send "&e/fjernskilt &8- &7Fjern sell-skilt"
+        send "&e/sellskilthjælp &8- &7Vis denne hjælp"
+        send ""
+        send "&8&m------------------------------"
